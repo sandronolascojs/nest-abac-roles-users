@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+
+  ## DATABASES
+  redis: 
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+    container_name: redis
+    networks:
+      - test-network
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    container_name: postgres
+    networks:
+      - test-network
+  ## APPS
+
+networks:
+  test-network:
+    driver: bridge

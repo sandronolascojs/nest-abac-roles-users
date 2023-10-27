@@ -1,0 +1,73 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../../node_modules/@prisma/users"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DB_POSTGRES_URL")
+}
+
+model User {
+    id        String      @id @unique
+    email     String      @unique
+    name      String
+    lastName  String
+    phone     String?     @db.VarChar(20)
+    password  String
+    status    Boolean     @default(true)
+    createdAt DateTime    @default(now())
+    user_role User_Role[]
+
+    @@index([email], name: "email")
+    @@map("users")
+}
+
+model Role {
+    id              String            @id @unique
+    name            String            @unique
+    slug            String            @unique
+    description     String?
+    status          Boolean           @default(true)
+    createdAt       DateTime          @default(now())
+    Role_Permission Role_Permission[]
+    User_Role       User_Role[]
+
+    @@map("roles")
+}
+
+model Permission {
+    id              String            @id @unique
+    name            String            @unique
+    slug            String            @unique
+    description     String?
+    action          String            @default("read")
+    subject         String
+    status          Boolean           @default(true)
+    createdAt       DateTime          @default(now())
+    Role_Permission Role_Permission[]
+
+    @@map("permissions")
+}
+
+model Role_Permission {
+    id            String     @id
+    role          Role       @relation(fields: [role_id], references: [id])
+    role_id       String
+    permission    Permission @relation(fields: [permission_id], references: [id])
+    permission_id String
+
+    @@map("roles_permissions")
+}
+
+model User_Role {
+    id        String   @id
+    user      User     @relation(fields: [user_id], references: [id])
+    user_id   String
+    role      Role     @relation(fields: [role_id], references: [id])
+    role_id   String
+    status    Boolean  @default(true)
+    createdAt DateTime @default(now())
+
+    @@map("users_roles")
+}

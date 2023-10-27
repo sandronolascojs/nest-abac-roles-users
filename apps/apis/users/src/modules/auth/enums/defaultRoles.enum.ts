@@ -1,0 +1,4 @@
+export enum defaultRolesEnum {
+  SUPERADMIN = 'SUPERADMIN',
+  ADMINISTRATION = 'ADMINISTRATION',
+}

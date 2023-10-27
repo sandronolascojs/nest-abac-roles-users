@@ -1,0 +1,51 @@
+FROM node:18-alpine AS builder
+
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY tsconfig*.json .
+COPY ./libs ./libs
+
+RUN npm install
+
+RUN mkdir -p ./prisma
+
+COPY ./prisma ./prisma
+
+RUN npm run prisma:gen:users
+RUN npm run prisma:gen:example-database
+
+COPY ./apps/apis/users .
+
+RUN npm run build
+
+FROM node:18-alpine
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+ARG PORT=3012
+ENV PORT=${PORT}
+
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
+EXPOSE ${PORT}
+
+CMD ["node", "dist/src/main.js"]
+
+
+
+
+
+
+
+
+
+
+
